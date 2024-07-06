@@ -42,6 +42,12 @@ const MenuCell = ({ title, inStock, quantity, incrementQuantity, decrementQuanti
   />
 );
 
+const CartButton = ({ cartItems }) => (
+  <View style={styles.cartButton}>
+    <Text style={styles.cartButtonText}>Cart: {cartItems.length}</Text>
+  </View>
+);
+
 
 export default function App() {
 
@@ -60,20 +66,8 @@ function MenuScreen({ route }) {
   const { items } = route.params;
 
   const [menuItems, setMenuItems] = useState(items);
+  const [cart, setCart] = useState([]);
 
-  const handleMenuItemPress = (sectionIndex, itemTitle) => {
-    Alert.alert(
-      "Item Selected",
-      `Do you want to add ${menuItems[sectionIndex].contents[itemIndex].title} to your cart?`,
-      [
-        {
-          text: "Cancel",
-          style: "cancel"
-        },
-        { text: "OK", onPress: () => console.log(`${menuItems[sectionIndex].contents[itemIndex].title} added to cart`) }
-      ]
-    );
-  };
   
   const incrementQuantity = (sectionIndex, itemIndex) => {
     const newMenuItems = [...menuItems];
@@ -90,13 +84,19 @@ function MenuScreen({ route }) {
   };
 
   const addToCart = (sectionIndex, itemIndex) => {
-    incrementQuantity(sectionIndex, itemIndex);
-    Alert.alert('Item Added', `${menuItems[sectionIndex].contents[itemIndex].title} has been added to the cart.`);
+    const item = menuItems[sectionIndex].contents[itemIndex];
+    if (item.quantity > 0) {
+      setCart([...cart, item]);
+      Alert.alert('Item Added', `${item.quantity} x ${item.title} has been added to the cart.`);
+    } else {
+      Alert.alert('Invalid Quantity', 'Please select a quantity greater than 0.');
+    }
   };
-
 
   return (
     <SafeAreaView style={styles.container}>
+
+      <CartButton cartItems={cart} />
       <ScrollView>
         <TableView>
           {menuItems.map((item, sectionIndex) => (
@@ -110,7 +110,7 @@ function MenuScreen({ route }) {
                   incrementQuantity={() => incrementQuantity(sectionIndex, itemIndex)}
                   decrementQuantity={() => decrementQuantity(sectionIndex, itemIndex)}
                   addToCart={() => addToCart(sectionIndex, itemIndex)}
-                  action={() => handleMenuItemPress(content.title)}
+                 // action={() => handleMenuItemPress(content.title)}
                   />
               ))}
             </Section>
@@ -145,9 +145,9 @@ function MenuScreen({ route }) {
         eta: "50 mins",
         imgUri: require('./images/vanilla.jpg'),
         menu: [
-          { title: 'Pasta', contents: [{ title: 'Spaghetti Bolognese',  inStock: true }, { title: 'Carbonara',  inStock: true }, { title: 'Pesto' }, { title: 'Lasagne' }] },
-          { title: 'Pizza', contents: [{ title: 'Margherita',  inStock: true }, { title: 'Pepperoni' }, { title: 'Vegetarian',  inStock: true }] },
-          { title: 'Salad', contents: [{ title: 'Caesar',  inStock: true }, { title: 'Greek' }, { title: 'Caprese',  inStock: true }] },
+          { title: 'Pasta', contents: [{ title: 'Spaghetti Bolognese',  inStock: true,  quantity: 0 }, { title: 'Carbonara',  inStock: true,  quantity: 0 }, { title: 'Pesto' }, { title: 'Lasagne' }] },
+          { title: 'Pizza', contents: [{ title: 'Margherita',  inStock: true ,  quantity: 0}, { title: 'Pepperoni' }, { title: 'Vegetarian',  inStock: true,  quantity: 0}] },
+          { title: 'Salad', contents: [{ title: 'Caesar',  inStock: true,  quantity: 0 }, { title: 'Greek' }, { title: 'Caprese',  inStock: true ,  quantity: 0}] },
         ]
       },
       {
@@ -156,9 +156,9 @@ function MenuScreen({ route }) {
         eta: "45 mins",
         imgUri: require('./images/smoothie.jpg'),
         menu: [
-          { title: 'Fruit Smoothies', contents: [{ title: 'Strawberry Banana',  inStock: true }, { title: 'Mango Pineapple',  inStock: true }, { title: 'Berry Blast' }] },
-          { title: 'Green Smoothies', contents: [{ title: 'Kale Spinach',  inStock: true }, { title: 'Avocado',  inStock: true }, { title: 'Cucumber Mint',  inStock: true }] },
-          { title: 'Protein Smoothies', contents: [{ title: 'Chocolate Protein',  inStock: true}, { title: 'Peanut Butter' }, { title: 'Vanilla Whey',  inStock: true }] },
+          { title: 'Fruit Smoothies', contents: [{ title: 'Strawberry Banana',  inStock: true,  quantity: 0 }, { title: 'Mango Pineapple',  inStock: true,  quantity: 0}, { title: 'Berry Blast' }] },
+          { title: 'Green Smoothies', contents: [{ title: 'Kale Spinach',  inStock: true,  quantity: 0 }, { title: 'Avocado',  inStock: true,  quantity: 0 }, { title: 'Cucumber Mint',  inStock: true }] },
+          { title: 'Protein Smoothies', contents: [{ title: 'Chocolate Protein',  inStock: true,  quantity: 0}, { title: 'Peanut Butter' }, { title: 'Vanilla Whey',  inStock: true,  quantity: 0 }] },
         ]
       },
       {
@@ -167,9 +167,9 @@ function MenuScreen({ route }) {
         eta: "30-50 mins",
         imgUri: require('./images/sushi.jpg'),
         menu: [
-          { title: 'Sushi Rolls', contents: [{ title: 'California Roll',  inStock: true }, { title: 'Spicy Tuna Roll',  inStock: true }, { title: 'Salmon Avocado Roll',  inStock: true }] },
-          { title: 'Nigiri', contents: [{ title: 'Salmon Nigiri',  inStock: true}, { title: 'Tuna Nigiri',  inStock: true }, { title: 'Eel Nigiri' }] },
-          { title: 'Sashimi', contents: [{ title: 'Salmon Sashimi',  inStock: true }, { title: 'Tuna Sashimi' }, { title: 'Yellowtail Sashimi',  inStock: true }] },
+          { title: 'Sushi Rolls', contents: [{ title: 'California Roll',  inStock: true,  quantity: 0 }, { title: 'Spicy Tuna Roll',  inStock: true }, { title: 'Salmon Avocado Roll',  inStock: true }] },
+          { title: 'Nigiri', contents: [{ title: 'Salmon Nigiri',  inStock: true,  quantity: 0}, { title: 'Tuna Nigiri',  inStock: true }, { title: 'Eel Nigiri' }] },
+          { title: 'Sashimi', contents: [{ title: 'Salmon Sashimi',  inStock: true,  quantity: 0 }, { title: 'Tuna Sashimi',  quantity: 0 }, { title: 'Yellowtail Sashimi',  inStock: true,  quantity: 0 }] },
         ]
       },
       {
@@ -189,9 +189,9 @@ function MenuScreen({ route }) {
         eta: "40-60 mins",
         imgUri: require('./images/curry.jpg'),
         menu: [
-          { title: 'Curries', contents: [{ title: 'Chicken Tikka Masala',  inStock: true }, { title: 'Lamb Vindaloo',  inStock: true }, { title: 'Paneer Butter Masala',  inStock: true}] },
-          { title: 'Naan', contents: [{ title: 'Garlic Naan' ,  inStock: true}, { title: 'Cheese Naan',  inStock: true }, { title: 'Plain Naan',  inStock: true }] },
-          { title: 'Sides', contents: [{ title: 'Samosa',  inStock: true }, { title: 'Pakora' }, { title: 'Raita',  inStock: true }] },
+          { title: 'Curries', contents: [{ title: 'Chicken Tikka Masala',  inStock: true,  quantity: 0}, { title: 'Lamb Vindaloo',  inStock: true }, { title: 'Paneer Butter Masala',  inStock: true,  quantity: 0}] },
+          { title: 'Naan', contents: [{ title: 'Garlic Naan' ,  inStock: true,  quantity: 0}, { title: 'Cheese Naan',  inStock: true,  quantity: 0 }, { title: 'Plain Naan',  inStock: true,  quantity: 0 }] },
+          { title: 'Sides', contents: [{ title: 'Samosa',  inStock: true,  quantity: 0 }, { title: 'Pakora' }, { title: 'Raita',  inStock: true,  quantity: 0 }] },
         ]
       },
       {
@@ -200,9 +200,9 @@ function MenuScreen({ route }) {
         eta: "25-45 mins",
         imgUri: require('./images/tacos.jpg'),
         menu: [
-          { title: 'Tacos', contents: [{ title: 'Beef Taco',  inStock: true }, { title: 'Chicken Taco',  inStock: true }, { title: 'Fish Taco',  inStock: true }] },
-          { title: 'Quesadillas', contents: [{ title: 'Cheese Quesadilla',  inStock: true}, { title: 'Chicken Quesadilla',  inStock: true }, { title: 'Beef Quesadilla',  inStock: true }] },
-          { title: 'Sides', contents: [{ title: 'Chips & Salsa',  inStock: true }, { title: 'Guacamole',  inStock: true }, { title: 'Corn',  inStock: true}] },
+          { title: 'Tacos', contents: [{ title: 'Beef Taco',  inStock: true,  quantity: 0 }, { title: 'Chicken Taco',  inStock: true,  quantity: 0 }, { title: 'Fish Taco',  inStock: true,  quantity: 0 }] },
+          { title: 'Quesadillas', contents: [{ title: 'Cheese Quesadilla',  inStock: true,  quantity: 0}, { title: 'Chicken Quesadilla',  inStock: true,  quantity: 0 }, { title: 'Beef Quesadilla',  inStock: true,  quantity: 0 }] },
+          { title: 'Sides', contents: [{ title: 'Chips & Salsa',  inStock: true,  quantity: 0 }, { title: 'Guacamole',  inStock: true,  quantity: 0 }, { title: 'Corn',  inStock: true,  quantity: 0}] },
         ]
       }
     ];
@@ -229,6 +229,7 @@ function MenuScreen({ route }) {
               </Section>
             </TableView>
           </ScrollView>
+          <StatusBar style="auto" />
       </SafeAreaView>
     );
   }
@@ -290,5 +291,15 @@ function MenuScreen({ route }) {
     },
     quantityText: {
       marginHorizontal: 5,
-    }
+    },
+    cartButton: {
+      padding: 10,
+      backgroundColor: '#ff5722',
+      alignItems: 'center',
+    },
+    cartButtonText: {
+      color: '#fff',
+      fontWeight: 'bold',
+    },
+
 });
